@@ -1,6 +1,6 @@
 [package]
 name = "license-generator"
-description = "A Command line tool that generate `LICENSE` file."
+description = "Command line tool for generating license files."
 keywords = ["license","generator", "cli"]
 readme = "README.md"
 license = "MIT"
@@ -15,6 +15,11 @@ include = [
     "README.md",
     "LICENSE"
 ]
+
+[[bin]]
+name = "license"
+path = "src/main.rs"
+
 [dependencies]
 structopt = "0.2.14"
 chrono = "0.4"
