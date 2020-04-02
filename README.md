@@ -1,18 +1,24 @@
 # license-generator [![Build Status](https://travis-ci.org/azu/license-generator.svg?branch=master)](https://travis-ci.org/azu/license-generator)
 
-A Command line tool that generate `LICENSE` file.
+Command line tool for generating license files.
 
 ## Installation
 
-Install with [Cargo](https://crates.io/):
+To install the original https://github.com/azu/license-generator as hosted on https://crates.io/:
 
     cargo install license-generator
 
+To install this fork, clone this repo and build using
+
+    cargo build --release
+    
+and move license.exe into your .cargo\bin folder.
+
 ## Usage
 
-    $ license-generator --author <name> [LICENSE_TYPE]
+    $ license -a <author> LICENSE_TYPE [SECOND_LICENSE_TYPE] [...NTH LICENSE TYPE]
 
-    [LICENSE_TYPE]:
+    LICENSE_TYPE:
     - AGPL
     - Apache
     - CC-BY
@@ -27,13 +33,21 @@ Install with [Cargo](https://crates.io/):
     - Unlicense
 
     Options:
-      --author input author name
-      --project input project name that is required by some license
-      --year input license year 
+      -a, --author Author
+      -p, --project Project name as required by some licenses
+      -y, --year License year 
+      
+    Examples:
+    This generates `LICENSE_MIT` and `LICENSE_APACHE` in the current directory
+       $ license -a Author_Name MIT Apache
+       
+    This generates the GPL license with filename `LICENSE` in the current directory
+       $ license -a Author_Name GPL
+    
 
 ## Supported Licenses
 
-The CLI supports the following licenses:
+The following licenses are supported:
 
 - [AGPL-3.0](http://www.gnu.org/licenses/agpl-3.0)
 - [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
