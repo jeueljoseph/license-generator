@@ -12,22 +12,18 @@ use std::process;
 #[derive(StructOpt, Debug)]
 struct Opt {
     #[structopt(name = "INPUT")]
-    input: String,
-    #[structopt(long = "author")]
+    input: Vec<String>,
+    #[structopt(short = "a", long = "author")]
     author: String,
-    #[structopt(long = "project")]
+    #[structopt(short = "p", long = "project")]
     project: Option<String>,
-    #[structopt(long = "year")]
+    #[structopt(short = "y", long = "year")]
     year: Option<u32>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Opt::from_args();
-    let license = create_license(opt.input.as_str());
-    let license = license.unwrap_or_else(|| {
-        eprintln!("Not found match license: {}", opt.input);
-        process::exit(1);
-    });
+
     let dt = Local::now();
     let current_year = dt.year();
     let year = opt.year.unwrap_or_else(|| current_year as u32);
@@ -35,18 +31,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: want to remove clone
     let project = opt.project.clone().unwrap_or_else(|| {
         env::current_dir()
-            .expect("use --project: Not found current dir")
+            .expect("use --project: Failed to retrieve current directory")
             .file_name()
-            .expect("use --project: Not found directory name")
+            .expect("use --project: Failed to retrieve current directory name")
             .to_os_string()
             .into_string()
-            .expect("use --project: Fail to unwrap os_string")
+            .expect("use --project: Failed to unwrap os_string")
     });
 
-    let license_text = license.notice(year, &author, &project);
-    write_license(&license_text, "LICENSE").unwrap_or_else(|error| {
-        eprintln!("Can not write LICENSE file: {}", error);
-        process::exit(1);
-    });
+    for license_name in &opt.input {
+        let license = create_license(&license_name);
+
+        let license = license.unwrap_or_else(|| {
+            eprintln!("License \"{}\" is not recognised.", &license_name);
+            process::exit(1);
+        });
+
+        let file_name = if &opt.input.len() == &1 {
+            "LICENSE".to_owned()
+        } else {
+            "LICENSE_".to_owned() + &license_name.to_uppercase()
+        };
+
+        let license_text = license.notice(year, &author, &project);
+        write_license(&license_text, &file_name).unwrap_or_else(|error| {
+            eprintln!("Error creating license file {}: {}", &file_name, error);
+            process::exit(1);
+        });
+    }
+
     Ok(())
 }
